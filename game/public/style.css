@@ -16,7 +16,7 @@ body {
 }
 
 .bottom {
-    vertical-align: bottom;
+    margin-top: auto;
 }
 .column {
   display: flex;
