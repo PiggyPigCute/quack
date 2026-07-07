@@ -36,8 +36,8 @@ function newGame() {
   return {
     deck,
     hands: {
-      player1: deck.splice(0, handSize),
-      player2: deck.splice(0, handSize),
+      1: deck.splice(0, handSize),
+      2: deck.splice(0, handSize),
     },
     discard: [],
     turn: 1,
@@ -58,12 +58,7 @@ let player2Taken = false;
 // ============================================================
 function viewFor(role) {
   return {
-    myHand: role === 1 ? game.hands.player1
-          : role === 2 ? game.hands.player2
-          : null, // un spectateur ne voit aucune main
-    otherHand: role === 1 ? game.hands.player2
-             : role === 2 ? game.hands.player1
-             : null,
+    myHand: game.hands[role] || null,
     discard: game.discard,
     turn: game.turn,
     deckSize: game.deck.length,
