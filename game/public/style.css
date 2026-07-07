@@ -50,24 +50,23 @@ h1 {
 }
 
 .cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-    align-items: stretch;
-    gap: 4px;
-    padding: 40px;
-    margin: 0;
-    /* plus besoin de "auto" puisqu'il n'y a plus de max-width à centrer */
-    min-height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .card {
+    flex: 1 1 150px;
+    /* grandit, rétrécit, mais avec une base de 150px */
+    min-width: 150px;
+    /* empêche de rétrécir sous ce seuil, forçant le retour à la ligne */
+
     border: 1px solid #999;
     border-radius: 6px;
     padding: 12px 16px;
     cursor: pointer;
     background: white;
     font-size: 18px;
-    height: 150px;
 }
 
 .card:hover {
