@@ -18,6 +18,11 @@ body {
 .bottom {
     vertical-align: bottom;
 }
+.column {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* elle prend déjà toute la hauteur grâce à align-items: stretch sur body, ceci le rend explicite */
+}
 
 h1 {
     font-size: 20px;
