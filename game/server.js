@@ -105,7 +105,7 @@ io.on('connection', (socket) => {
 
   // --- Action : jouer une card de sa main ---
   socket.on('playCard', (pos) => {
-    game.log.push("coucou")
+    console.log("yes")
 
     if (role !== game.turn) return;
 
