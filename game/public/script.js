@@ -23,15 +23,24 @@ socket.on('gameState', (etat) => {
     document.getElementById('deck-size').textContent = etat.deckSize;
 
     // Ma main (uniquement si je suis joueur)
-    if (etat.myHand) {
-        const handEl = document.getElementById('player-hand');
-        handEl.innerHTML = '';
-        etat.myHand.forEach((card) => {
+    if (myRole < 3) {
+        const myHandEl = document.getElementById('player-hand');
+        myHandEl.innerHTML = '';
+        etat.myHand.forEach((card, pos) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.textContent = '.';
+            div.onclick = () => socket.emit('playCard', pos);
+            myHandEl.appendChild(div);
+        });
+
+        const otherHandEl = document.getElementById('other-hand');
+        otherHandEl.innerHTML = '';
+        etat.otherHand.forEach((card) => {
             const div = document.createElement('div');
             div.className = 'card';
             div.textContent = card.x + card.c;
-            div.onclick = () => socket.emit('playCard', card);
-            handEl.appendChild(div);
+            otherHandEl.appendChild(div);
         });
     }
 
@@ -46,6 +55,17 @@ socket.on('gameState', (etat) => {
         discardEl.appendChild(div);
     });
 
+    // Cartes jouées (visible par tous)
+    const fireworkEl = document.getElementById('firework');
+    fireworkEl.innerHTML = '';
+    etat.firework.forEach((card) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.textContent = card;
+        div.style.cursor = 'default';
+        fireworkEl.appendChild(div);
+    });
+
     // Vue spec
     if (myRole === 3) {
         document.getElementById('spec-p1').textContent = 6;
@@ -57,10 +77,6 @@ socket.on('gameState', (etat) => {
     logEl.innerHTML = etat.log.map(l => `<div>${l}</div>`).join('');
     logEl.scrollTop = logEl.scrollHeight;
 });
-
-document.getElementById('btn-draw').onclick = () => {
-    socket.emit('drawCard');
-};
 
 document.getElementById('btn-new-game').onclick = () => {
     console.log("yoo")

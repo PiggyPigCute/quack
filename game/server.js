@@ -9,6 +9,7 @@ app.use(express.static('public'));
 const cs = ['r', 'y', 'g', 'b', 'p'];
 const xs = ['1', '2', '3', '4', '5'];
 const occurences = {'1':3, '2':2, '3':2, '4':2, '5':1};
+const next = {'1':'2', '2':'3', '3':'4', '4':'5', '5':'win'};
 const handSize = 6;
 
 function createDeck() {
@@ -59,6 +60,7 @@ let player2Taken = false;
 function viewFor(role) {
   return {
     myHand: game.hands[role] || null,
+    otherHand: game.hands[3-role] || null,
     discard: game.discard,
     turn: game.turn,
     deckSize: game.deck.length,
@@ -99,29 +101,23 @@ io.on('connection', (socket) => {
   // Envoie l'état initial (filtré) juste à ce client
   socket.emit('gameState', viewFor(role));
 
-  // --- Action : piocher une card ---
-  socket.on('drawCard', () => {
-    // TOUJOURS revalider côté serveur, ne jamais faire confiance au client
-    if (role !== game.turn) return; // ce n'est pas son turn
-    if (game.deck.length === 0) return;
-
-    const card = game.deck.pop();
-    game.hands[role].push(card);
-    game.log.push(`Joueur·euse ${role} pioche une carte`);
-    spreadState();
-  });
-
   // --- Action : jouer une card de sa main ---
-  socket.on('playCard', (card) => {
+  socket.on('playCard', (pos) => {
     if (role !== game.turn) return;
 
-    const hand = game.hands[role];
-    const index = hand.findIndex(c => c.x === card.x && c.c === card.c);
-    if (index === -1) return;
+    const [playedCard] = hand.splice(pos, 1);
+    if (game.firework[playedCard.c] == playedCard.x) {
+      game.firework[playedCard.c] = next[playedCard.x]
+      game.log.push(`Joueur·euse ${role} joue ${playedCard.x}${playedCard.c}.`);
+    } else {
+      game.discard.push(playedCard)
+      game.log.push(`Joueur·euse ${role} défausse ${playedCard.x}${playedCard.c}.`);
+    }
 
-    const [carteJouee] = hand.splice(index, 1);
-    game.discard.push(carteJouee);
-    game.log.push(`Joueur·euse ${role} joue ${carteJouee.x}${carteJouee.c}.`);
+    if (game.deck.length != 0) {
+      const newCard = game.deck.pop();
+      game.hands[role].push(card);
+    }
 
     game.turn = 3 - game.turn;
     spreadState();
