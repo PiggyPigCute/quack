@@ -9,7 +9,7 @@ app.use(express.static('public'));
 const cs = ['r', 'y', 'g', 'b', 'p'];
 const xs = ['1', '2', '3', '4', '5'];
 const occurences = {'1':3, '2':2, '3':2, '4':2, '5':1};
-const next = {'Ø':'1', '1':'2', '2':'3', '3':'4', '4':'5'};
+const next = {'0':'1', '1':'2', '2':'3', '3':'4', '4':'5'};
 const handSize = 6;
 
 function createDeck() {
@@ -41,7 +41,7 @@ function newGame() {
       2: deck.splice(0, handSize),
     },
     discard: [],
-    firework : Object.fromEntries(cs.map(c => [c,'1'])),
+    firework : Object.fromEntries(cs.map(c => [c,'0'])),
     turn: 1,
     log: ['start'],
   };
@@ -118,7 +118,7 @@ io.on('connection', (socket) => {
 
     if (game.deck.length != 0) {
       const newCard = game.deck.pop();
-      game.hands[role].push(card);
+      game.hands[role].push(newCard);
     }
 
     game.turn = 3 - game.turn;
@@ -140,6 +140,12 @@ io.on('connection', (socket) => {
     console.log(`Déconnexion ${socket.id} (rôle ${r})`);
   });
 });
+
+/* DEBUG afac */
+app.get('/debug', (req, res) => {
+  res.json(game);
+});
+window.debugGame = () => fetch('/debug').then(r => r.json()).then(g => { window.game = g; console.log(g); return g; });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
