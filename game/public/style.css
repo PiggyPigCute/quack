@@ -31,6 +31,7 @@ body {
 
 h1 {
     font-size: 60px;
+    margin: 0;
 }
 
 #role {
@@ -49,10 +50,14 @@ h1 {
 }
 
 .cards {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin: 10px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    align-items: stretch;
+    gap: 4px;
+    padding: 40px;
+    margin: 0;
+    /* plus besoin de "auto" puisqu'il n'y a plus de max-width à centrer */
+    min-height: 100vh;
 }
 
 .card {
@@ -62,6 +67,7 @@ h1 {
     cursor: pointer;
     background: white;
     font-size: 18px;
+    height: 150px;
 }
 
 .card:hover {

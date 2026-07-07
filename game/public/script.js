@@ -12,7 +12,7 @@ const els = {
     discard: document.getElementById('discard'),
     firework: document.getElementById('firework'),
     log: document.getElementById('log'),
-    btnNewGame: document.getElementById('btnNewGame')
+    btnNewGame: document.getElementById('btn-new-game')
 }
 
 socket.on('role', (role) => {
