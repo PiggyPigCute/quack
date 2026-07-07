@@ -4,6 +4,8 @@
 
 body {
     font-family: sans-serif;
+    background-image: url(img/bg.jpg);
+
     display: grid;
     grid-template-columns: 2fr 2fr 1fr;
     align-items: stretch;
@@ -11,7 +13,6 @@ body {
     padding: 40px;
     max-width: 1100px;
     margin: 0 auto;
-    /* auto pour centrer horizontalement, au lieu de 0 */
     min-height: 100vh;
 }
 
@@ -21,7 +22,7 @@ body {
 .column {
   display: flex;
   flex-direction: column;
-  height: 100%; /* elle prend déjà toute la hauteur grâce à align-items: stretch sur body, ceci le rend explicite */
+  height: 100%;
 }
 
 h1 {
