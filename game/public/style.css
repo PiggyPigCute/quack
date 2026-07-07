@@ -1,14 +1,18 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: sans-serif;
-
     display: grid;
     grid-template-columns: 2fr 2fr 1fr;
-    align-items: start;
+    align-items: stretch;
     gap: 24px;
     padding: 40px;
     max-width: 1100px;
-    margin: 0;
-    height: 100%;
+    margin: 0 auto;
+    /* auto pour centrer horizontalement, au lieu de 0 */
+    min-height: 100vh;
 }
 
 .bottom {
