@@ -84,3 +84,6 @@ document.getElementById('btn-new-game').onclick = () => {
     console.log("yoo")
     socket.emit('newGame');
 };
+
+/* DEBUG afac */
+window.debugGame = () => fetch('/debug').then(r => r.json()).then(g => { window.game = g; console.log(g); return g; });

@@ -145,7 +145,6 @@ io.on('connection', (socket) => {
 app.get('/debug', (req, res) => {
   res.json(game);
 });
-window.debugGame = () => fetch('/debug').then(r => r.json()).then(g => { window.game = g; console.log(g); return g; });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
