@@ -31,6 +31,7 @@ function createDeck() {
 }
 
 function newGame() {
+  console.log("yo")
   const deck = createDeck();
   return {
     deck,

@@ -63,5 +63,6 @@ document.getElementById('btn-draw').onclick = () => {
 };
 
 document.getElementById('btn-new-game').onclick = () => {
+    console.log("yoo")
     socket.emit('newGame');
 };
