@@ -6,14 +6,6 @@ const cs = ['r', 'y', 'g', 'b', 'p'];
 socket.on('role', (role) => {
     myRole = role;
     document.getElementById('role').textContent = role;
-
-    if (role === 'spec') {
-        document.getElementById('game-area').style.display = 'none';
-        document.getElementById('spec-area').style.display = 'block';
-    } else {
-        document.getElementById('game-area').style.display = 'block';
-        document.getElementById('spec-area').style.display = 'none';
-    }
 });
 
 socket.on('gameState', (view) => {
