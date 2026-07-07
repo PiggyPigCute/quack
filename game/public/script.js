@@ -1,6 +1,8 @@
 const socket = io();
 let myRole = null;
 
+const cs = ['r', 'y', 'g', 'b', 'p'];
+
 socket.on('role', (role) => {
     myRole = role;
     document.getElementById('role').textContent = role;
@@ -14,19 +16,19 @@ socket.on('role', (role) => {
     }
 });
 
-socket.on('gameState', (etat) => {
+socket.on('gameState', (view) => {
     // Indicateur de tour
     const turnEl = document.getElementById('turn');
-    turnEl.textContent = etat.turn;
-    turnEl.classList.toggle('my-turn', etat.turn === myRole);
+    turnEl.textContent = view.turn;
+    turnEl.classList.toggle('my-turn', view.turn === myRole);
 
-    document.getElementById('deck-size').textContent = etat.deckSize;
+    document.getElementById('deck-size').textContent = view.deckSize;
 
     // Ma main (uniquement si je suis joueur)
     if (myRole < 3) {
         const myHandEl = document.getElementById('player-hand');
         myHandEl.innerHTML = '';
-        etat.myHand.forEach((card, pos) => {
+        view.myHand.forEach((card, pos) => {
             const div = document.createElement('div');
             div.className = 'card';
             div.textContent = '.';
@@ -36,7 +38,7 @@ socket.on('gameState', (etat) => {
 
         const otherHandEl = document.getElementById('other-hand');
         otherHandEl.innerHTML = '';
-        etat.otherHand.forEach((card) => {
+        view.otherHand.forEach((card) => {
             const div = document.createElement('div');
             div.className = 'card';
             div.textContent = card.x + card.c;
@@ -47,7 +49,7 @@ socket.on('gameState', (etat) => {
     // Défausse (visible par tous)
     const discardEl = document.getElementById('discard');
     discardEl.innerHTML = '';
-    etat.discard.forEach((card) => {
+    view.discard.forEach((card) => {
         const div = document.createElement('div');
         div.className = 'card';
         div.textContent = card;
@@ -58,10 +60,10 @@ socket.on('gameState', (etat) => {
     // Cartes jouées (visible par tous)
     const fireworkEl = document.getElementById('firework');
     fireworkEl.innerHTML = '';
-    etat.firework.forEach((card) => {
+    cs.forEach(c => {
         const div = document.createElement('div');
         div.className = 'card';
-        div.textContent = card;
+        div.textContent = view.firework[c] + c;
         div.style.cursor = 'default';
         fireworkEl.appendChild(div);
     });
@@ -74,7 +76,7 @@ socket.on('gameState', (etat) => {
 
     // Historique
     const logEl = document.getElementById('log');
-    logEl.innerHTML = etat.log.map(l => `<div>${l}</div>`).join('');
+    logEl.innerHTML = view.log.map(l => `<div>${l}</div>`).join('');
     logEl.scrollTop = logEl.scrollHeight;
 });
 

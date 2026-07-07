@@ -9,7 +9,7 @@ app.use(express.static('public'));
 const cs = ['r', 'y', 'g', 'b', 'p'];
 const xs = ['1', '2', '3', '4', '5'];
 const occurences = {'1':3, '2':2, '3':2, '4':2, '5':1};
-const next = {'1':'2', '2':'3', '3':'4', '4':'5', '5':'win'};
+const next = {'Ø':'1', '1':'2', '2':'3', '3':'4', '4':'5'};
 const handSize = 6;
 
 function createDeck() {
@@ -41,6 +41,7 @@ function newGame() {
       2: deck.splice(0, handSize),
     },
     discard: [],
+    firework : Object.fromEntries(cs.map(c => [c,'1'])),
     turn: 1,
     log: ['start'],
   };
@@ -62,6 +63,7 @@ function viewFor(role) {
     myHand: game.hands[role] || null,
     otherHand: game.hands[3-role] || null,
     discard: game.discard,
+    firework: game.firework,
     turn: game.turn,
     deckSize: game.deck.length,
     log: game.log,
@@ -106,8 +108,8 @@ io.on('connection', (socket) => {
     if (role !== game.turn) return;
 
     const [playedCard] = hand.splice(pos, 1);
-    if (game.firework[playedCard.c] == playedCard.x) {
-      game.firework[playedCard.c] = next[playedCard.x]
+    if (next[game.firework[playedCard.c]] == playedCard.x) {
+      game.firework[playedCard.c] = playedCard.x
       game.log.push(`Joueur·euse ${role} joue ${playedCard.x}${playedCard.c}.`);
     } else {
       game.discard.push(playedCard)
