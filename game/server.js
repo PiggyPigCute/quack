@@ -105,6 +105,8 @@ io.on('connection', (socket) => {
 
   // --- Action : jouer une card de sa main ---
   socket.on('playCard', (pos) => {
+    game.log.push("coucou")
+
     if (role !== game.turn) return;
 
     const [playedCard] = hand.splice(pos, 1);
