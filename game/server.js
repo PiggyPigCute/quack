@@ -8,7 +8,7 @@ app.use(express.static('public'));
 
 const cs = ['r', 'y', 'g', 'b', 'p'];
 const xs = ['1', '2', '3', '4', '5'];
-const occurences = [3, 2, 2, 2, 1];
+const occurences = {'1':3, '2':2, '3':2, '4':2, '5':1};
 const handSize = 6;
 
 function createDeck() {
@@ -116,24 +116,22 @@ io.on('connection', (socket) => {
     if (role !== game.turn) return;
 
     const hand = game.hands[role];
-    const index = hand.indexOf(card);
-    if (index === -1) return; // le joueur n'a pas cette card, on ignore
+    const index = hand.findIndex(c => c.x === card.x && c.c === card.c);
+    if (index === -1) return;
 
-    hand.splice(index, 1);
-    game.discard.push(card);
-    game.log.push(`${role} joue la carte ${card}.`);
+    const [carteJouee] = hand.splice(index, 1);
+    game.discard.push(carteJouee);
+    game.log.push(`Joueur·euse ${role} joue ${carteJouee.x}${carteJouee.c}.`);
 
-    // On passe le tour à l'autre joueur
     game.turn = 3 - game.turn;
-
     spreadState();
   });
 
   // --- Redémarrer la partie (pratique pour tester) ---
   socket.on('newGame', () => {
     console.log("coucou")
-    // game = newGame();
-    // spreadState();
+    game = newGame();
+    spreadState();
   });
 
   socket.on('disconnect', () => {

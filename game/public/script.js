@@ -47,9 +47,9 @@ socket.on('gameState', (etat) => {
     });
 
     // Vue spec
-    if (myRole === 'spec') {
-        document.getElementById('spec-j1').textContent = 6;
-        document.getElementById('spec-j2').textContent = 6;
+    if (myRole === 3) {
+        document.getElementById('spec-p1').textContent = 6;
+        document.getElementById('spec-p2').textContent = 6;
     }
 
     // Historique
