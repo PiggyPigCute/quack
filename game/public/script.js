@@ -38,7 +38,7 @@ socket.on('gameState', (view) => {
 
         const otherHandEl = document.getElementById('other-hand');
         otherHandEl.innerHTML = '';
-        view.otherHand.forEach((card) => {
+        view.myHand.forEach((card) => {
             const div = document.createElement('div');
             div.className = 'card';
             div.textContent = card.x + card.c;
