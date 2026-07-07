@@ -3,22 +3,34 @@ let myRole = null;
 
 const cs = ['r', 'y', 'g', 'b', 'p'];
 
+const els = {    
+    role: document.getElementById('role'),
+    turn: document.getElementById('turn'),
+    deckSize: document.getElementById('deck-size'),
+    playerHand: document.getElementById('player-hand'),
+    otherHand: document.getElementById('other-hand'),
+    discard: document.getElementById('discard'),
+    firework: document.getElementById('firework'),
+    log: document.getElementById('log'),
+    btnNewGame: document.getElementById('btnNewGame')
+}
+
 socket.on('role', (role) => {
     myRole = role;
-    document.getElementById('role').textContent = role;
+    els.role.textContent = role;
 });
 
 socket.on('gameState', (view) => {
     // Indicateur de tour
-    const turnEl = document.getElementById('turn');
+    const turnEl = els.turn;
     turnEl.textContent = view.turn;
     turnEl.classList.toggle('my-turn', view.turn === myRole);
 
-    document.getElementById('deck-size').textContent = view.deckSize;
+    els.deckSize.textContent = view.deckSize;
 
     // Ma main (uniquement si je suis joueur)
     if (myRole < 3) {
-        const myHandEl = document.getElementById('player-hand');
+        const myHandEl = els.playerHand;
         myHandEl.innerHTML = '';
         view.myHand.forEach((card, pos) => {
             const div = document.createElement('div');
@@ -28,7 +40,7 @@ socket.on('gameState', (view) => {
             myHandEl.appendChild(div);
         });
 
-        const otherHandEl = document.getElementById('other-hand');
+        const otherHandEl = els.otherHand;
         otherHandEl.innerHTML = '';
         view.otherHand.forEach((card) => {
             const div = document.createElement('div');
@@ -39,7 +51,7 @@ socket.on('gameState', (view) => {
     }
 
     // Défausse (visible par tous)
-    const discardEl = document.getElementById('discard');
+    const discardEl = els.discard;
     discardEl.innerHTML = '';
     view.discard.forEach((card) => {
         const div = document.createElement('div');
@@ -50,7 +62,7 @@ socket.on('gameState', (view) => {
     });
 
     // Cartes jouées (visible par tous)
-    const fireworkEl = document.getElementById('firework');
+    const fireworkEl = els.firework;
     fireworkEl.innerHTML = '';
     cs.forEach(c => {
         const div = document.createElement('div');
@@ -60,19 +72,13 @@ socket.on('gameState', (view) => {
         fireworkEl.appendChild(div);
     });
 
-    // Vue spec
-    if (myRole === 3) {
-        document.getElementById('spec-p1').textContent = 6;
-        document.getElementById('spec-p2').textContent = 6;
-    }
-
     // Historique
-    const logEl = document.getElementById('log');
+    const logEl = els.log;
     logEl.innerHTML = view.log.map(l => `<div>${l}</div>`).join('');
     logEl.scrollTop = logEl.scrollHeight;
 });
 
-document.getElementById('btn-new-game').onclick = () => {
+els.btnNewGame.onclick = () => {
     console.log("yoo")
     socket.emit('newGame');
 };
