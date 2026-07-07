@@ -44,7 +44,7 @@ socket.on('gameState', (view) => {
     view.discard.forEach((card) => {
         const div = document.createElement('div');
         div.className = 'card';
-        div.textContent = card;
+        div.textContent = card.x + card.c;
         div.style.cursor = 'default';
         discardEl.appendChild(div);
     });
