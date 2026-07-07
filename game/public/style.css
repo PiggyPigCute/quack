@@ -1,7 +1,12 @@
 body {
     font-family: sans-serif;
-    max-width: 700px;
+
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr;
+    gap: 24px;
+    max-width: 1100px;
     margin: 40px auto;
+    align-items: start;
 }
 
 h1 {
