@@ -109,7 +109,7 @@ io.on('connection', (socket) => {
 
     if (role !== game.turn) return;
 
-    const [playedCard] = hand.splice(pos, 1);
+    const [playedCard] = game.hands[role].splice(pos, 1);
     if (next[game.firework[playedCard.c]] == playedCard.x) {
       game.firework[playedCard.c] = playedCard.x
       game.log.push(`Joueur·euse ${role} joue ${playedCard.x}${playedCard.c}.`);
