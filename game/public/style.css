@@ -12,25 +12,25 @@ h1 {
     font-weight: bold;
 }
 
-#tour {
+#turn {
     padding: 4px 10px;
     border-radius: 6px;
     background: #eee;
     display: inline-block;
 }
 
-#tour.mon-tour {
+#turn.my-turn {
     background: #cdeccd;
 }
 
-.cartes {
+.cards {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     margin: 10px 0;
 }
 
-.carte {
+.card {
     border: 1px solid #999;
     border-radius: 6px;
     padding: 12px 16px;
@@ -39,7 +39,7 @@ h1 {
     font-size: 18px;
 }
 
-.carte:hover {
+.card:hover {
     background: #f0f0f0;
 }
 

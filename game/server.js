@@ -1,21 +1,27 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-
 app.use(express.static('public'));
 
-// ============================================================
-// ETAT DU JEU (en mémoire, une seule partie possible)
-// C'est le serveur qui fait autorité : c'est la SEULE source
-// de vérité. Le client ne fait jamais confiance à lui-même.
-// ============================================================
-function creerDeck() {
+const cs = ['r', 'y', 'g', 'b', 'p'];
+const xs = ['1', '2', '3', '4', '5'];
+const occurences = [3, 2, 2, 2, 1];
+const handSize = 6;
+
+function createDeck() {
   const deck = [];
-  for (let i = 1; i <= 20; i++) deck.push(i);
+
+  cs.forEach(c =>
+    xs.forEach(x => {
+      for (let i=1; i<=occurences[x]; i++) {
+        deck.push({x:x,c:c})
+      }
+    })
+  )
+
   // mélange
   for (let i = deck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -24,117 +30,121 @@ function creerDeck() {
   return deck;
 }
 
-function nouvellePartie() {
-  const deck = creerDeck();
+function newGame() {
+  const deck = createDeck();
   return {
     deck,
-    mains: {
-      joueur1: deck.splice(0, 5),
-      joueur2: deck.splice(0, 5),
+    hands: {
+      player1: deck.splice(0, handSize),
+      player2: deck.splice(0, handSize),
     },
-    defausse: [],
-    tour: 'joueur1', // à qui de jouer
-    log: ['La partie commence.'],
+    discard: [],
+    turn: 1,
+    log: ['start'],
   };
 }
 
-let partie = nouvellePartie();
+let game = newGame();
 
-// Association socket.id -> rôle ('joueur1' | 'joueur2' | 'spectateur')
+// Association socket.id -> rôle ('player1' | 'player2' | 'spectateur')
 const roles = new Map();
-let joueur1Pris = false;
-let joueur2Pris = false;
+let player1Taken = false;
+let player2Taken = false;
 
 // ============================================================
 // Construit une vue de l'état FILTRÉE selon le rôle du
 // destinataire : un joueur ne voit jamais la main de l'autre.
 // ============================================================
-function vuePour(role) {
+function viewFor(role) {
   return {
-    maMain: role === 'joueur1' ? partie.mains.joueur1
-          : role === 'joueur2' ? partie.mains.joueur2
+    myHand: role === 1 ? game.hands.player1
+          : role === 2 ? game.hands.player2
           : null, // un spectateur ne voit aucune main
-    nbCartesAdverse: role === 'joueur1' ? partie.mains.joueur2.length
-                    : role === 'joueur2' ? partie.mains.joueur1.length
-                    : null,
-    nbCartesJoueur1: partie.mains.joueur1.length,
-    nbCartesJoueur2: partie.mains.joueur2.length,
-    defausse: partie.defausse,
-    tour: partie.tour,
-    cartesRestantesDansLeDeck: partie.deck.length,
-    log: partie.log,
-    monRole: role,
+    otherHand: role === 1 ? game.hands.player2
+             : role === 2 ? game.hands.player1
+             : null,
+    discard: game.discard,
+    turn: game.turn,
+    deckSize: game.deck.length,
+    log: game.log,
+    myRole: role,
   };
 }
 
 // Envoie à CHAQUE client sa propre vue filtrée (pas un broadcast unique)
-function diffuserEtat() {
+function spreadState() {
   for (const [socketId, role] of roles.entries()) {
-    io.to(socketId).emit('etatJeu', vuePour(role));
+    io.to(socketId).emit('gameState', viewFor(role));
   }
 }
 
 io.on('connection', (socket) => {
   // --- Attribution du rôle à la connexion ---
   let role;
-  if (!joueur1Pris) {
-    role = 'joueur1';
-    joueur1Pris = true;
-  } else if (!joueur2Pris) {
-    role = 'joueur2';
-    joueur2Pris = true;
+  if (!player1Taken) {
+    role = 1;
+    player1Taken = true;
+  } else if (!player2Taken) {
+    role = 2;
+    player2Taken = true;
   } else {
-    role = 'spectateur';
+    role = 3;
   }
   roles.set(socket.id, role);
   socket.emit('role', role);
-  console.log(`Connexion ${socket.id} -> ${role}`);
+  if (role == 1) {
+    console.log(`Connexion Joueur·euse 1 ${socket.id}`);
+  } else if (role == 2) {
+    console.log(`Connexion Joueur·euse 2 ${socket.id}`);
+  } else {
+    console.log(`Connexion Spectateur·ice ${socket.id}`);
+  } 
 
   // Envoie l'état initial (filtré) juste à ce client
-  socket.emit('etatJeu', vuePour(role));
+  socket.emit('gameState', viewFor(role));
 
-  // --- Action : piocher une carte ---
-  socket.on('piocherCarte', () => {
+  // --- Action : piocher une card ---
+  socket.on('drawCard', () => {
     // TOUJOURS revalider côté serveur, ne jamais faire confiance au client
-    if (role !== partie.tour) return; // ce n'est pas son tour
-    if (partie.deck.length === 0) return;
+    if (role !== game.turn) return; // ce n'est pas son turn
+    if (game.deck.length === 0) return;
 
-    const carte = partie.deck.pop();
-    partie.mains[role].push(carte);
-    partie.log.push(`${role} pioche une carte.`);
-    diffuserEtat();
+    const card = game.deck.pop();
+    game.hands[role].push(card);
+    game.log.push(`Joueur·euse ${role} pioche une carte`);
+    spreadState();
   });
 
-  // --- Action : jouer une carte de sa main ---
-  socket.on('jouerCarte', (carte) => {
-    if (role !== partie.tour) return;
+  // --- Action : jouer une card de sa main ---
+  socket.on('playCard', (card) => {
+    if (role !== game.turn) return;
 
-    const main = partie.mains[role];
-    const index = main.indexOf(carte);
-    if (index === -1) return; // le joueur n'a pas cette carte, on ignore
+    const hand = game.hands[role];
+    const index = hand.indexOf(card);
+    if (index === -1) return; // le joueur n'a pas cette card, on ignore
 
-    main.splice(index, 1);
-    partie.defausse.push(carte);
-    partie.log.push(`${role} joue la carte ${carte}.`);
+    hand.splice(index, 1);
+    game.discard.push(card);
+    game.log.push(`${role} joue la carte ${card}.`);
 
     // On passe le tour à l'autre joueur
-    partie.tour = partie.tour === 'joueur1' ? 'joueur2' : 'joueur1';
+    game.turn = 3 - game.turn;
 
-    diffuserEtat();
+    spreadState();
   });
 
   // --- Redémarrer la partie (pratique pour tester) ---
-  socket.on('nouvellePartie', () => {
-    partie = nouvellePartie();
-    diffuserEtat();
+  socket.on('newGame', () => {
+    game = newGame();
+    spreadState();
   });
 
   socket.on('disconnect', () => {
     const r = roles.get(socket.id);
-    if (r === 'joueur1') joueur1Pris = false;
-    if (r === 'joueur2') joueur2Pris = false;
+    if (r === 1) player1Taken = false;
+    if (r === 2) player2Taken = false;
     roles.delete(socket.id);
-    console.log(`Déconnexion ${socket.id} (${r})`);
+    console.log(`Déconnexion ${socket.id} (rôle ${r})`);
   });
 });
 
