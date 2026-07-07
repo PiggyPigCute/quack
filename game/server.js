@@ -132,8 +132,8 @@ io.on('connection', (socket) => {
   // --- Redémarrer la partie (pratique pour tester) ---
   socket.on('newGame', () => {
     console.log("coucou")
-    game = newGame();
-    spreadState();
+    // game = newGame();
+    // spreadState();
   });
 
   socket.on('disconnect', () => {
